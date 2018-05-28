@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 const { ipcRenderer } = window.require('electron');
 
 export default class ListaTarefa extends Component {
-    constructor(props) {
+    constructor(props)
+    {
         super(props);
 
-        this.state = {
+        this.state =
+        {
             tarefas: []
         };
     }
@@ -16,9 +18,24 @@ export default class ListaTarefa extends Component {
 
     requisitarTarefasDaAplicacaoElectron() {
         ipcRenderer.send('tarefas:get');
-        ipcRenderer.on('tarefas:all', (e, tarefas) => {
-            this.setState({tarefas});
+        ipcRenderer.on('tarefas:all', (e, tarefasArray) => {
+            this.setState({
+                tarefas: tarefasArray
+            });
         });
+    }
+
+    edit(id)
+    {
+        const idTask = (id-1);
+        ipcRenderer.send('tarefas:editar', idTask);
+    }
+
+    changeStatus(id)
+    {
+        const idTask = (id-1);
+        ipcRenderer.send('tarefas:changeStatus', idTask);
+        this.requisitarTarefasDaAplicacaoElectron();
     }
 
     renderList() {
@@ -27,15 +44,25 @@ export default class ListaTarefa extends Component {
                 return (
                     <tr>
                         <td>
-                            <input type="checkbox" />
+                            <input type="checkbox" onClick={() => this.changeStatus(tarefa.id)} checked={tarefa.status}/>
                         </td>
-                        <td>
-                            {tarefa.titulo}
+                        <td id={ 'status_' + tarefa.id } onClick={() => this.edit(tarefa.id)}>
+                            {this.checkStatus(tarefa.status, tarefa.titulo)}
                         </td>
                     </tr>
                 );
             })
         );
+    }
+
+    checkStatus(status, titulo)
+    {
+        if(status)
+        {
+            return <strike>{titulo}</strike>
+        } else {
+            return titulo
+        }
     }
 
     render() {
