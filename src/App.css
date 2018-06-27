@@ -10,6 +10,18 @@ header.toolbar-header {
 	width: 40px;
 }
 
+input[type="number"]
+{
+	margin: 2%;
+	width: 30%;
+}
+
+span.events
+{
+	margin: 3%;
+	font-size: 130%;
+}
+
 form
 {
 	padding: 10%;

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
-import ListaTarefas from './components/lista-tarefas';
-import NovaTarefa from './components/nova-tarefa';
+import ListaExercicios from './components/lista-exercicios';
+import NovoExercicio from './components/novo-exercicio';
+import InfoExercicio from './components/info-exercicio';
 const { ipcRenderer } = window.require('electron');
 
 class App extends Component
@@ -11,15 +12,15 @@ class App extends Component
         super();
         this.state =
         {
-            panel: <ListaTarefas />
+            panel: <ListaExercicios />
         };
 
-        ipcRenderer.on('window:listaTarefas', () => {
+        ipcRenderer.on('window:listaExercicios', () => {
             this.loadPanel("main");
         });
 
-        ipcRenderer.on('window:editar', (e, tarefa) => {
-            this.loadPanel("newTask", tarefa.id, tarefa.titulo, tarefa.descricao, tarefa.status);
+        ipcRenderer.on('window:editar', (e, exercicio) => {
+            this.loadPanelWithData("newTask", exercicio.id, exercicio.descricao, exercicio.serie, exercicio.peso, exercicio.status);
         });
     }
 
@@ -38,10 +39,17 @@ class App extends Component
         ipcRenderer.send('window:close');
     }
 
-    loadPanel(info, id, titulo, descricao, status)
+    loadPanel()
     {
         this.setState({
-            panel: info === "main" ? <ListaTarefas /> : <NovaTarefa id={id} titulo={titulo} descricao={descricao} status={status}/>
+            panel: <ListaExercicios />
+        });
+    }
+
+    loadPanelWithData(info, id, descricao, serie, peso, status)
+    {
+        this.setState({
+            panel: info === "newTask" ? <NovoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/> : <NovoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/>
         });
     }
 
@@ -50,7 +58,7 @@ class App extends Component
         return(
             <div className="window">
                 <header className="toolbar toolbar-header">
-                    <h1 className="title">Lista de Tarefas</h1>
+                    <h1 className="title">Gym Progress</h1>
 
                     <div className="toolbar-actions">
                         <button className="btn btn-default" onClick={() => this.loadPanel("main")}>
@@ -75,10 +83,10 @@ class App extends Component
                     <div className="pane-group">
                         <div className="pane pane-sm sidebar">
                             <nav className="nav-group">
-                                <h5 className="nav-group-title">Tarefas</h5>
-                                <span id="cadastrar" className="nav-group-item" onClick={() => this.loadPanel("newTask")}>
+                                <h5 className="nav-group-title">Eventos</h5>
+                                <span id="cadastrar" className="nav-group-item" onClick={() => this.loadPanelWithData("newTask")}>
                                     <span className="icon icon-plus-circled"></span>
-                                    Nova Tarefa
+                                    Novo Exercício
                                 </span>
                             </nav>
                         </div>

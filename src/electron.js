@@ -2,10 +2,12 @@ const electron = require('electron');
 const { app, BrowserWindow, ipcMain } = electron;
 
 let mainWindow;
-let tarefas = [];
-tarefas[0] = {id: 1, titulo: 'Tarefa 1', descricao: 'Desc 1', status: false};
-tarefas[1] = {id: 2, titulo: 'Tarefa 2', descricao: 'Desc 2', status: false};
-tarefas[2] = {id: 3, titulo: 'Tarefa 3', descricao: 'Desc 3', status: true};
+let exercicios = [];
+exercicios[0] = {id: 1, descricao: 'Leg Press 45º', serie: '4x10', peso: 70, status: false};
+exercicios[1] = {id: 2, descricao: 'Rosca Direta', serie: '3x15', peso: 25, status: false};
+exercicios[2] = {id: 3, descricao: 'Pulley Corda', serie: '3x10', peso: 35, status: true};
+
+let modificacoes = [];
 
 app.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
@@ -49,30 +51,55 @@ ipcMain.on('window:close', () => {
     mainWindow.close();
 });
 
-ipcMain.on('tarefas:get', () => {
-	mainWindow.webContents.send('tarefas:all', tarefas);
+ipcMain.on('exercicios:get', () => {
+	mainWindow.webContents.send('exercicios:all', exercicios);
+});
+
+ipcMain.on('modificacao:get', () => {
+	mainWindow.webContents.send('modificacoes:all', modificacoes);
 });
 
 ipcMain.on('window:main', () => {
-	mainWindow.webContents.send('window:listaTarefas');
+	mainWindow.webContents.send('window:listaExercicios');
 });
 
-ipcMain.on('tarefas:editar', (e, id) => {
-    const tarefa = tarefas[id];
-	mainWindow.webContents.send('window:editar', tarefa);
+ipcMain.on('exercicios:editar', (e, id) => {
+    const exercicio = exercicios[id];
+	mainWindow.webContents.send('window:editar', exercicio);
 });
 
-ipcMain.on('tarefas:changeStatus', (e, id) => {
-    const status = tarefas[id].status;
-    tarefas[id].status = status == true ? false : true;
+ipcMain.on('exercicios:info', (e, id) => {
+    const exercicio = exercicios[id];
+	mainWindow.webContents.send('window:editar', exercicio);
+});
+
+ipcMain.on('exercicios:remover', (e, id) => {
+    if(id > 0)
+    {
+        exercicios.splice(id-1, 1);
+        for(let i = 0; i < exercicios.length; i++)
+        {
+            exercicios[i].id = i+1;
+        }
+    }
+});
+
+ipcMain.on('exercicios:changeStatus', (e, id) => {
+    const status = exercicios[id].status;
+    exercicios[id].status = status == true ? false : true;
 });
 
 
-ipcMain.on('salvar:tarefa', (e, id, tit, desc, status) => {
-    const idTask = id == null ? tarefas.length+1 : id;
-    const titu = tit;
-    const descri = desc;
+ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status) => {
+    const idTask = id == null ? exercicios.length+1 : id;
+    const des = desc;
+    const rep = serie;
+    const kg = peso;
     const statusTask = status;
-    tarefas[idTask-1] = {id: idTask, titulo: titu, descricao: descri, status: statusTask};
-	mainWindow.webContents.send('window:listaTarefas');
+    exercicios[idTask-1] = {id: idTask, descricao: des, serie: rep, peso: kg, status: statusTask};
+
+    const index = modificacoes.length;
+    modificacoes[index] = {id: index+1, exercicio_id: idTask, data: 'hoje', peso: kg};
+
+	mainWindow.webContents.send('window:listaExercicios');
 });
