@@ -3,6 +3,7 @@ import './App.css';
 import ListaExercicios from './components/lista-exercicios';
 import NovoExercicio from './components/novo-exercicio';
 import InfoExercicio from './components/info-exercicio';
+import InativosExercicios from './components/inativos-exercicio';
 const { ipcRenderer } = window.require('electron');
 
 class App extends Component
@@ -19,8 +20,16 @@ class App extends Component
             this.loadPanel("main");
         });
 
+        ipcRenderer.on('window:inativosExercicios', () => {
+            this.loadPanel("inativos");
+        });
+
         ipcRenderer.on('window:editar', (e, exercicio) => {
-            this.loadPanelWithData("newTask", exercicio.id, exercicio.descricao, exercicio.serie, exercicio.peso, exercicio.status);
+            this.loadPanelWithData("newTask", exercicio._id, exercicio.descricao, exercicio.serie, exercicio.peso, exercicio.status);
+        });
+
+        ipcRenderer.on('window:info', (e, exercicio) => {
+            this.loadPanelWithData("infoTask", exercicio._id, exercicio.descricao, exercicio.serie, exercicio.peso, exercicio.status);
         });
     }
 
@@ -39,17 +48,17 @@ class App extends Component
         ipcRenderer.send('window:close');
     }
 
-    loadPanel()
+    loadPanel(info)
     {
         this.setState({
-            panel: <ListaExercicios />
+            panel: info === "main" ? <ListaExercicios /> : <InativosExercicios />
         });
     }
 
     loadPanelWithData(info, id, descricao, serie, peso, status)
     {
         this.setState({
-            panel: info === "newTask" ? <NovoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/> : <NovoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/>
+            panel: info === "newTask" ? <NovoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/> : <InfoExercicio id={id} descricao={descricao} serie={serie} peso={peso} status={status}/>
         });
     }
 
@@ -63,6 +72,9 @@ class App extends Component
                     <div className="toolbar-actions">
                         <button className="btn btn-default" onClick={() => this.loadPanel("main")}>
                             <span className="icon icon-home"></span>
+                        </button>
+                        <button className="btn btn-default" onClick={() => this.loadPanel("inativos")}>
+                            <span className="icon icon-attach"></span>
                         </button>
 
                         <div className="btn-group pull-right">

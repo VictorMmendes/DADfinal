@@ -16,6 +16,11 @@ input[type="number"]
 	width: 30%;
 }
 
+h3 i
+{
+	margin: 1%;
+}
+
 span.events
 {
 	margin: 3%;

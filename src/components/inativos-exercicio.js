@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 const { ipcRenderer } = window.require('electron');
 
-export default class ListaExercicios extends Component {
+export default class InativosExercicios extends Component {
     constructor(props)
     {
         super(props);
@@ -25,24 +25,14 @@ export default class ListaExercicios extends Component {
         });
     }
 
-    edit(id)
-    {
-        ipcRenderer.send('exercicios:editar', id);
-    }
-
-    seeInfo(id)
-    {
-        ipcRenderer.send('exercicios:info', id);
-    }
-
     renderList() {
         return (
             this.state.exercicios.map((exercicio) => {
-                if(exercicio.status)
+                if(!exercicio.status)
                 {
                     return (
                         <tr>
-                            <td onClick={() => this.seeInfo(exercicio._id)}>
+                            <td>
                                 {exercicio.descricao}
                             </td>
                             <td>
@@ -52,8 +42,7 @@ export default class ListaExercicios extends Component {
                                 {exercicio.peso}
                             </td>
                             <td>
-                                <span class="icon icon-pencil events" onClick={() => this.edit(exercicio._id)}></span>
-                                <span class="icon icon-cancel events" onClick={() => this.remove(exercicio._id)}></span>
+                                <span class="icon icon-check events" onClick={() => this.remove(exercicio._id)}></span>
                             </td>
                         </tr>
                     );
@@ -67,21 +56,23 @@ export default class ListaExercicios extends Component {
     remove(id)
     {
         ipcRenderer.send('exercicios:remover', id);
-        this.requisitarExerciciosDaAplicacaoElectron();
+        ipcRenderer.on('pode:atualizar', () => {
+            this.requisitarExerciciosDaAplicacaoElectron();
+        });
     }
 
     render() {
         return (
             <div className="main-window">
                 <h3>
-                    Lista de exercícios
+                    Exercícios Inativos
                 </h3>
                 <table className="table-striped main-table">
                 <thead>
                     <tr>
                         <th>Exercício</th>
                         <th>Repetição</th>
-                        <th>Peso Atual</th>
+                        <th>Peso Inicial</th>
                         <th>Eventos</th>
                     </tr>
                 </thead>

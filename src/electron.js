@@ -1,11 +1,10 @@
 const electron = require('electron');
 const { app, BrowserWindow, ipcMain } = electron;
+const ExercicioDao = require('./db/exercicioDAO');
+
+let exercicioDao = new ExercicioDao();
 
 let mainWindow;
-let exercicios = [];
-exercicios[0] = {id: 1, descricao: 'Leg Press 45º', serie: '4x10', peso: 70, status: false};
-exercicios[1] = {id: 2, descricao: 'Rosca Direta', serie: '3x15', peso: 25, status: false};
-exercicios[2] = {id: 3, descricao: 'Pulley Corda', serie: '3x10', peso: 35, status: true};
 
 let modificacoes = [];
 
@@ -52,7 +51,10 @@ ipcMain.on('window:close', () => {
 });
 
 ipcMain.on('exercicios:get', () => {
-	mainWindow.webContents.send('exercicios:all', exercicios);
+    exercicioDao.buscarTodos(exercicios => {
+        console.log('atualizando');
+	       mainWindow.webContents.send('exercicios:all', exercicios);
+    });
 });
 
 ipcMain.on('modificacao:get', () => {
@@ -63,43 +65,82 @@ ipcMain.on('window:main', () => {
 	mainWindow.webContents.send('window:listaExercicios');
 });
 
+ipcMain.on('window:inativos', () => {
+	mainWindow.webContents.send('window:inativosExercicios');
+});
+
 ipcMain.on('exercicios:editar', (e, id) => {
-    const exercicio = exercicios[id];
-	mainWindow.webContents.send('window:editar', exercicio);
+    exercicioDao.buscar(id, exercicio => {
+    	mainWindow.webContents.send('window:editar', exercicio);
+    });
 });
 
 ipcMain.on('exercicios:info', (e, id) => {
-    const exercicio = exercicios[id];
-	mainWindow.webContents.send('window:editar', exercicio);
+    exercicioDao.buscar(id, exercicio => {
+    	mainWindow.webContents.send('window:info', exercicio);
+    });
 });
 
 ipcMain.on('exercicios:remover', (e, id) => {
+    exercicioDao.buscar(id, exercicio => {
+        let statusChanged = exercicio.status;
+        statusChanged = statusChanged == true ? false : true;
+        let exe = {descricao: exercicio.descricao, serie: exercicio.serie, peso: exercicio.peso, status: statusChanged, _id: id};
+
+        exercicioDao.atualizar(exe, exercicioAtualizado => {
+            console.log(exe);
+            console.log(exercicioAtualizado);
+            console.log('--------atual status------------');
+            mainWindow.webContents.send('pode:atualizar');
+        });
+    });
+});
+
+ipcMain.on('modificacao:remover', (e, id) => {
     if(id > 0)
     {
-        exercicios.splice(id-1, 1);
-        for(let i = 0; i < exercicios.length; i++)
+        modificacoes.splice(id-1, 1);
+        for(let i = 0; i < modificacoes.length; i++)
         {
-            exercicios[i].id = i+1;
+            modificacoes[i].id = i+1;
         }
     }
 });
 
-ipcMain.on('exercicios:changeStatus', (e, id) => {
-    const status = exercicios[id].status;
-    exercicios[id].status = status == true ? false : true;
-});
-
-
-ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status) => {
-    const idTask = id == null ? exercicios.length+1 : id;
+ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) => {
+    let idTask = id;
     const des = desc;
     const rep = serie;
     const kg = peso;
     const statusTask = status;
-    exercicios[idTask-1] = {id: idTask, descricao: des, serie: rep, peso: kg, status: statusTask};
+    const pesoAtual = id == null ? 0 : pesoCorrente;
 
-    const index = modificacoes.length;
-    modificacoes[index] = {id: index+1, exercicio_id: idTask, data: 'hoje', peso: kg};
+    let exercicio;
+
+    if(idTask == null)
+    {
+        exercicio = {descricao: des, serie: rep, peso: kg, status: statusTask};
+        exercicioDao.inserir(exercicio, exercicioCadastrado => {
+            console.log(exercicio);
+            console.log(exercicioCadastrado);
+            console.log('--------cadas------------');
+            idTask = exercicio._id;
+        });
+    } else {
+        exercicio = {descricao: des, serie: rep, peso: kg, status: statusTask, _id: idTask};
+        exercicioDao.atualizar(exercicio, exercicioAtualizado => {
+            console.log(exercicio);
+            console.log(exercicioAtualizado);
+            console.log('--------atual------------');
+        });
+    }
+
+
+    if(pesoAtual != kg)
+    {
+        const index = modificacoes.length;
+        modificacoes[index] = {id: index+1, exercicio_id: idTask, data: 'hoje', peso: kg};
+    }
 
 	mainWindow.webContents.send('window:listaExercicios');
 });

@@ -13,6 +13,7 @@ export default class NovoExercicio extends Component {
             descricao: props.descricao,
             peso: props.peso,
             serie: props.serie,
+            pesoAtual: props.peso,
             serieIndex: null,
             qtdeIndex: null,
             status: props.status
@@ -27,16 +28,18 @@ export default class NovoExercicio extends Component {
     adicionar()
     {
         const id = this.state.id;
-        const status = this.state.status;
+        const status = this.state.status == null ? true : this.state.status;
         const desc = document.getElementById('desc').value;
         const serie = document.getElementById('serie').value + "x" + document.getElementById('qtde').value;
         const peso = document.getElementById('peso').value;
+        const pesoAtual = this.state.pesoAtual;
 
-        ipcRenderer.send('salvar:exercicio', id, desc, serie, peso, status);
+        ipcRenderer.send('salvar:exercicio', id, desc, serie, peso, status, pesoAtual);
     }
 
     dividir()
     {
+        //let nao funcionou
         if(this.state.serie != null)
         {
             var str = this.state.serie;
