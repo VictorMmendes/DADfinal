@@ -1,8 +1,10 @@
 const electron = require('electron');
 const { app, BrowserWindow, ipcMain } = electron;
 const ExercicioDao = require('./db/exercicioDAO');
+const ModificacaoDao = require('./db/modificacaoDAO');
 
 let exercicioDao = new ExercicioDao();
+let modificacaoDao = new ModificacaoDao();
 
 let mainWindow;
 
@@ -58,7 +60,10 @@ ipcMain.on('exercicios:get', () => {
 });
 
 ipcMain.on('modificacao:get', () => {
-	mainWindow.webContents.send('modificacoes:all', modificacoes);
+    modificacaoDao.buscarTodos(modificacoes => {
+        console.log('atualizando modificacao');
+	       mainWindow.webContents.send('modificacoes:all', modificacoes);
+    });
 });
 
 ipcMain.on('window:main', () => {
@@ -81,7 +86,7 @@ ipcMain.on('exercicios:info', (e, id) => {
     });
 });
 
-ipcMain.on('exercicios:remover', (e, id) => {
+ipcMain.on('exercicios:remover', (e, id, info) => {
     exercicioDao.buscar(id, exercicio => {
         let statusChanged = exercicio.status;
         statusChanged = statusChanged == true ? false : true;
@@ -97,14 +102,12 @@ ipcMain.on('exercicios:remover', (e, id) => {
 });
 
 ipcMain.on('modificacao:remover', (e, id) => {
-    if(id > 0)
-    {
-        modificacoes.splice(id-1, 1);
-        for(let i = 0; i < modificacoes.length; i++)
-        {
-            modificacoes[i].id = i+1;
-        }
-    }
+    modificacaoDao.remover(id, modificacaoRemovida => {
+        console.log(id);
+        console.log(modificacaoRemovida);
+        console.log('--------remov mod------------');
+        mainWindow.webContents.send('agora:atualize');
+    });
 });
 
 ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) => {
@@ -115,6 +118,21 @@ ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) 
     const statusTask = status;
     const pesoAtual = id == null ? 0 : pesoCorrente;
 
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth()+1; //January is 0!
+    let yyyy = today.getFullYear();
+
+    if(dd<10) {
+        dd = '0'+dd
+    }
+
+    if(mm<10) {
+        mm = '0'+mm
+    }
+
+    today = dd + '/' + mm + '/' + yyyy;
+
     let exercicio;
 
     if(idTask == null)
@@ -124,7 +142,14 @@ ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) 
             console.log(exercicio);
             console.log(exercicioCadastrado);
             console.log('--------cadas------------');
-            idTask = exercicio._id;
+            idTask = exercicioCadastrado._id;
+
+            modificacao = {exercicio_id: idTask, data: today, peso: kg};
+            modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
+                console.log(modificacao);
+                console.log(modificacaoCadastrado);
+                console.log('--------cadas Mod------------');
+            });
         });
     } else {
         exercicio = {descricao: des, serie: rep, peso: kg, status: statusTask, _id: idTask};
@@ -132,14 +157,18 @@ ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) 
             console.log(exercicio);
             console.log(exercicioAtualizado);
             console.log('--------atual------------');
+            idTask = exercicio._id;
+
+            if(pesoAtual != exercicio.peso)
+            {
+                modificacao = {exercicio_id: idTask, data: today, peso: exercicio.peso};
+                modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
+                    console.log(modificacao);
+                    console.log(modificacaoCadastrado);
+                    console.log('--------atual Mod------------');
+                });
+            }
         });
-    }
-
-
-    if(pesoAtual != kg)
-    {
-        const index = modificacoes.length;
-        modificacoes[index] = {id: index+1, exercicio_id: idTask, data: 'hoje', peso: kg};
     }
 
 	mainWindow.webContents.send('window:listaExercicios');

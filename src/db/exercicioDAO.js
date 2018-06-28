@@ -25,8 +25,8 @@ function ExercicioDao() {
     };
 
     this.buscarTodos = callback => {
-        this.db.find({}).sort({ descricao: 1 }).exec((err, pessoas) => {
-            callback(pessoas);
+        this.db.find({}).sort({ descricao: 1 }).exec((err, exercicios) => {
+            callback(exercicios);
         });
     };
 

@@ -32,8 +32,10 @@ export default class InfoExercicio extends Component {
     }
 
     renderList() {
+        let array = this.state.modificacoes;
+
         return (
-            this.state.modificacoes.map((modificacao) => {
+            array.map((modificacao) => {
                 if(modificacao.exercicio_id === this.state.id)
                 {
                     return (
@@ -45,7 +47,7 @@ export default class InfoExercicio extends Component {
                                 {modificacao.peso}
                             </td>
                             <td>
-                                <span class="icon icon-trash events" onClick={() => this.remove(modificacao.id)}></span>
+                                <span class="icon icon-trash events" onClick={() => this.remove(modificacao._id)}></span>
                             </td>
                         </tr>
                     );
@@ -98,6 +100,8 @@ export default class InfoExercicio extends Component {
     remove(id)
     {
         ipcRenderer.send('modificacao:remover', id);
-        this.requisitarModificacoes();
+        ipcRenderer.on('agora:atualize', () => {
+            this.requisitarModificacoes();
+        });
     }
 }

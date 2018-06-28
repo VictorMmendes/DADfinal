@@ -50,6 +50,7 @@ export default class ListaExercicios extends Component {
                             </td>
                             <td>
                                 {exercicio.peso}
+                                kg
                             </td>
                             <td>
                                 <span class="icon icon-pencil events" onClick={() => this.edit(exercicio._id)}></span>
@@ -67,7 +68,9 @@ export default class ListaExercicios extends Component {
     remove(id)
     {
         ipcRenderer.send('exercicios:remover', id);
-        this.requisitarExerciciosDaAplicacaoElectron();
+        ipcRenderer.on('pode:atualizar', () => {
+            this.requisitarExerciciosDaAplicacaoElectron();
+        });
     }
 
     render() {
