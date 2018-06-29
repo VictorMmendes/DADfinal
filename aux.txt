@@ -1,6 +1,0 @@
-// <input type="checkbox" onClick={() => this.changeStatus(tarefa.id)} checked={tarefa.status}/>
-// <input type="checkbox" onClick={() => this.changeStatus(tarefa.id)} checked={tarefa.status}/>
-
-<td id={ 'status_' + exercicio.id } onClick={() => this.edit(exercicio.id)}>
-    {this.checkStatus(exercicio.status, exercicio.titulo)}
-</td>

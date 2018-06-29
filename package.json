@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "electron": "^2.0.1",
+    "electron-squirrel-startup": "^1.0.0",
     "jquery": "^3.3.1",
     "nedb": "^1.8.0",
     "react": "^16.3.2",
@@ -11,11 +11,49 @@
     "react-scripts": "1.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "electron-forge start",
     "build": "react-scripts build",
+    "react": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "electron": "electron ."
+    "electron": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
-  "main": "src/electron.js"
+  "main": "src/electron.js",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.20",
+    "@electron-forge/maker-deb": "^6.0.0-beta.20",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.20",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.20",
+    "@electron-forge/maker-zip": "^6.0.0-beta.20",
+    "electron": "2.0.3"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "tarefas_react"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  }
 }

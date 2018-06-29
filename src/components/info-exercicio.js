@@ -60,11 +60,21 @@ export default class InfoExercicio extends Component {
 
     checkProgress() {
         let progress = 0;
-        let modificacao = this.state.modificacoes;
-
-        for(let i = modificacao.length-1; i > 0; i--)
+        let modificacao = [];
+        for(const mod of this.state.modificacoes)
         {
-            progress += modificacao[i].peso - modificacao[i-1].peso;
+            if(mod.exercicio_id == this.state.id)
+            {
+                modificacao.push(mod);
+            }
+        }
+
+        if(modificacao.length > 0)
+        {
+            for(let i = modificacao.length-1; i > 0; i--)
+            {
+                progress += modificacao[i].peso - modificacao[i-1].peso;
+            }
         }
 
         return progress;
