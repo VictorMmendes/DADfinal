@@ -144,11 +144,13 @@ ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) 
             console.log('--------cadas------------');
             idTask = exercicioCadastrado._id;
 
-            modificacao = {exercicio_id: idTask, data: today, peso: kg};
-            modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
-                console.log(modificacao);
-                console.log(modificacaoCadastrado);
-                console.log('--------cadas Mod------------');
+            modificacaoDao.getLastId(lastId => {
+                modificacao = {exercicio_id: idTask, data: today, peso: kg, _id: lastId};
+                modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
+                    console.log(modificacao);
+                    console.log(modificacaoCadastrado);
+                    console.log('--------cadas Mod------------');
+                });
             });
         });
     } else {
@@ -161,11 +163,13 @@ ipcMain.on('salvar:exercicio', (e, id, desc, serie, peso, status, pesoCorrente) 
 
             if(pesoAtual != exercicio.peso)
             {
-                modificacao = {exercicio_id: idTask, data: today, peso: exercicio.peso};
-                modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
-                    console.log(modificacao);
-                    console.log(modificacaoCadastrado);
-                    console.log('--------atual Mod------------');
+                modificacaoDao.getLastId(lastId => {
+                    modificacao = {exercicio_id: idTask, data: today, peso: exercicio.peso, _id: lastId};
+                    modificacaoDao.inserir(modificacao, modificacaoCadastrado => {
+                        console.log(modificacao);
+                        console.log(modificacaoCadastrado);
+                        console.log('--------atual Mod------------');
+                    });
                 });
             }
         });

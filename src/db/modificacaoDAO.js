@@ -13,7 +13,7 @@ function ModificacaoDao() {
     };
 
     this.buscarTodos = callback => {
-        this.db.find({}).sort({ data: 1 }).exec((err, modificacoes) => {
+        this.db.find({}, (err, modificacoes) => {
             callback(modificacoes);
         });
     };
@@ -23,6 +23,18 @@ function ModificacaoDao() {
             this.db.remove({ _id: modificacoes[0]._id }, {}, (err, modificacao) => {
                 callback(modificacao);
             });
+        });
+    };
+
+    this.getLastId = callback => {
+        this.db.find({}, (err, modificacoes) => {
+            const sz = modificacoes.length-1;
+            if(sz > -1)
+            {
+                callback(modificacoes[sz]._id + 1);
+            } else {
+                callback(1);
+            }
         });
     };
 }
