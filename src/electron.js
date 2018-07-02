@@ -2,6 +2,9 @@ const electron = require('electron');
 const { app, BrowserWindow, ipcMain } = electron;
 const ExercicioDao = require('./db/exercicioDAO');
 const ModificacaoDao = require('./db/modificacaoDAO');
+const path = require('path');
+const nativeImage = electron.nativeImage;
+let demoIcon = nativeImage.createFromPath(path.join(__dirname, 'dumbbell.png'))
 
 let exercicioDao = new ExercicioDao();
 let modificacaoDao = new ModificacaoDao();
@@ -22,6 +25,7 @@ app.on('ready', () => {
 		height: 600,
 		frame: false,
 		show: false,
+        icon: demoIcon,
         webPreferences: {
             webSecurity: false
         }
