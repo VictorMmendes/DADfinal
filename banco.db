@@ -1,3 +1,7 @@
 {"descricao":"Triceps Pulley","serie":"3x12","peso":"35","status":true,"_id":"g8bOdwpOTmGYmEvt"}
 {"descricao":"pulley corda","serie":"3x15","peso":"45","status":true,"_id":"g9YaI9JEHbekR2EL"}
 {"descricao":"Supino Reto","serie":"3x12","peso":"20","status":true,"_id":"j6iX4WK01DdPGgjb"}
+{"descricao":"Supino Reto (Barra)","serie":"3x12","peso":"20","status":true,"_id":"j6iX4WK01DdPGgjb"}
+{"descricao":"Crucifixo Costas","serie":"3x10","peso":"15","status":true,"_id":"9220JX34MzKz3IJd"}
+{"descricao":"Crucifixo Costas","serie":"3x10","peso":"20","status":true,"_id":"9220JX34MzKz3IJd"}
+{"descricao":"pulley corda","serie":"3x15","peso":"45","status":false,"_id":"g9YaI9JEHbekR2EL"}
